@@ -1,5 +1,5 @@
 <?php
-// $Id: simplecontext.inc,v 1.1.2.1 2010/01/29 19:54:02 merlinofchaos Exp $
+// $Id: panelsargsubs.inc,v 1.1.2.1 2010/01/29 19:54:02 merlinofchaos Exp $
 
 
 /**
@@ -13,21 +13,16 @@
  * by the system that includes this file.
  */
 $plugin = array(
-  'title' => t("Simplecontext"),
-  'description' => t('A single "simplecontext" context, or data element.'),
-  'context' => 'ctools_plugin_example_context_create_simplecontext',  // func to create context
-  'context name' => 'simplecontext',
-  'settings form' => 'simplecontext_settings_form',
-  'keyword' => 'simplecontext',
+  'title' => t("Panels arg Subs"),
+  'description' => t('A single way to put url arguments into panels content.'),
+  'context' => 'sts_panelsargsubs_context_create_panelsargsubs',  // func to create context
+  'context name' => 'panelsargsubs',
+  'keyword' => 'panelsargsubs',
 
   // Provides a list of items which are exposed as keywords.
-  'convert list' => 'simplecontext_convert_list',
+  'convert list' => 'panelsargsubs_convert_list',
   // Convert keywords into data.
-  'convert' => 'simplecontext_convert',
-
-  'placeholder form' => array(
-    '#type' => 'textfield',
-    '#description' => t('Enter some data to represent this "simplecontext".'),
+  'convert' => 'panelsargsubs_convert',
   ),
 );
 
@@ -44,65 +39,18 @@ $plugin = array(
  * @return
  *   a Context object/
  */
-function ctools_plugin_example_context_create_simplecontext($empty, $data = NULL, $conf = FALSE) {
-  $context = new ctools_context('simplecontext');
-  $context->plugin = 'simplecontext';
+function sts_panelsargsubs_context_create_panelsargsubs($empty, $data = NULL, $conf = FALSE) {
+  $context = new ctools_context('panelsargsubs');
+  $context->plugin = 'panelsargsubs';
 
   if ($empty) {
     return $context;
   }
-
-  if ($conf) {
-    if (!empty($data)) {
-      $context->data = new stdClass();
-      // For this simple item we'll just create our data by stripping non-alpha and
-      // adding '_from_configuration_item_1' to it.
-      $context->data->item1 = t("Item1a");
-      $context->data->item2 = t("Item2a");
-      $context->data->description = preg_replace('/[^a-z]/i', '', $data['sample_simplecontext_setting']);
-      $context->data->description .= '_from_configuration_sample_simplecontext_setting';
-      $context->title = t("Simplecontext context from config");
-      return $context;
-    }
-  }
-  else {
-    // $data is coming from an arg - it's just a string.
-    // This is used for keyword.
-    $context->title = $data;
-    $context->argument = $data;
-    // Make up a bogus context
-    $context->data = new stdClass();
-    $context->data->item1 = t("Item1");
-    $context->data->item2 = t("Item2");
-
-    // For this simple item we'll just create our data by stripping non-alpha and
-    // adding '_from_simplecontext_argument' to it.
-    $context->data->description = preg_replace('/[^a-z]/i', '', $data);
-    $context->data->description .= '_from_simplecontext_argument';
-    $context->arg_length = strlen($context->argument);
-    return $context;
-  }
+  $context->data = new stdClass();
+  // For this simple item we'll just create our data by stripping non-alpha and
+  // adding '_from_configuration_item_1' to it.
+  return $context;
 }
-
-function simplecontext_settings_form($conf, $external = FALSE) {
-  if (empty($conf)) {
-    $conf = array(
-      'sample_simplecontext_setting' => 'default simplecontext setting',
-    );
-  }
-  $form = array();
-  $form['sample_simplecontext_setting'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Setting for simplecontext'),
-    '#size' => 50,
-    '#description' => t('An example setting that could be used to configure a context'),
-    '#default_value' => $conf['sample_simplecontext_setting'],
-    '#prefix' => '<div class="clear-block no-float">',
-    '#suffix' => '</div>',
-  );
-  return $form;
-}
-
 
 
 /**
@@ -111,25 +59,20 @@ function simplecontext_settings_form($conf, $external = FALSE) {
  * This is used to provide keywords from the context for use in a content type,
  * pane, etc.
  */
-function simplecontext_convert_list() {
+function panelsargsubs_convert_list() {
   return array(
-    'item1' => t('Item1'),
-    'item2' => t('Item2'),
-    'description' => t('Description'),
+    'getargs' => t('phpGETvaluehere'),
   );
 }
 
 /**
  * Convert a context into a string to be used as a keyword by content types, etc.
  */
-function simplecontext_convert($context, $type) {
-  switch ($type) {
-    case 'item1':
-      return $context->data->item1;
-    case 'item2':
-      return $context->data->item2;
-    case 'description':
-      return $context->data->description;
+function panelsargsubs_convert($context, $type) {
+  foreach($_GET as $key => $value) {
+    if ($type == $key) {
+      return urldecode(filter_xss($value));
+    }
   }
 }
 
