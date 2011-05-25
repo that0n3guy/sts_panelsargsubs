@@ -23,7 +23,6 @@ $plugin = array(
   'convert list' => 'panelsargsubs_convert_list',
   // Convert keywords into data.
   'convert' => 'panelsargsubs_convert',
-  ),
 );
 
 /**
@@ -61,7 +60,7 @@ function sts_panelsargsubs_context_create_panelsargsubs($empty, $data = NULL, $c
  */
 function panelsargsubs_convert_list() {
   return array(
-    'getargs' => t('phpGETvaluehere'),
+    'getargs' => t('Instead of getargs, put the name of the GET value'),
   );
 }
 
@@ -71,8 +70,9 @@ function panelsargsubs_convert_list() {
 function panelsargsubs_convert($context, $type) {
   foreach($_GET as $key => $value) {
     if ($type == $key) {
-      return urldecode(filter_xss($value));
+      return filter_xss($value);
     }
   }
 }
+
 
